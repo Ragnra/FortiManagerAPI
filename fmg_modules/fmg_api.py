@@ -33,6 +33,12 @@ class FMGApi:
 ####
     ###Code Block for methods that aren't directly called
     def rconvert(self, payload, *args):
+        '''
+        :param payload: this will be presented by the calling method (rget, rset, rexec) and will look like "payload = {"session":self.session_key, "method":"get"}"
+        :param args: this will be extra args, that include, uri and other options
+        The function wil then iterate over the presented key word arguments and merge them into a format required for the API call
+        :return: this will return the payload required by rget, rset, rexec and rdel as a string
+        '''
         dict_array = [i for i in args]
         merged_dict = {}
         for d in dict_array:
@@ -47,24 +53,44 @@ class FMGApi:
         return payload_str
 
     def rget(self, uri=None, data=None):
+        '''
+        :param uri: presented by the calling method
+        :param data: presented by the calling method, if required
+        :return: returns the jsonrpc api response
+        '''
         payload = {"session":self.session_key, "method":"get"}
         payload_str = self.rconvert(payload, uri)
         req = self.s.post(self.url, data=payload_str)
         return req
 
     def rexec(self, uri=None, data=None):
+        '''
+        :param uri: presented by the calling method
+        :param data: presented by the calling method, if required
+        :return: returns the jsonrpc api response
+        '''
         payload = {"session":self.session_key, "method":"exec"}
         payload_str = self.rconvert(payload, uri, data)
         req = self.s.post(self.url, data=payload_str)
         return req
 
     def rset(self, uri=None, data=None):
+        '''
+        :param uri: presented by the calling method
+        :param data: presented by the calling method, if required
+        :return: returns the jsonrpc api response
+        '''
         payload = {"session":self.session_key, "method":"set"}
         payload_str = self.rconvert(payload, uri, data)
         req = self.s.post(self.url, data=payload_str)
         return req
 
     def rdel(self, uri=None, data=None):
+        '''
+        :param uri: presented by the calling method
+        :param data: presented by the calling method, if required
+        :return: returns the jsonrpc api response
+        '''
         payload = {"session":self.session_key, "method":"delete"}
         payload_str = self.rconvert(payload, uri, data)
         req = self.s.post(self.url, data=payload_str)
