@@ -46,13 +46,13 @@ class FMGApi:
         merged_dict = {}
         for d in dict_array:
             merged_dict.update(d)
- #       print(merged_dict)
+        print(merged_dict)
 
         params = {"params":[]}
         params['params'].append(merged_dict)
         payload.update(params)
         payload_str = json.dumps(payload)
-  #      print(payload_str)
+        print(payload_str)
         return payload_str
 
     def rget(self, uri=None, data=None):
@@ -62,7 +62,10 @@ class FMGApi:
         :return: returns the jsonrpc api response
         '''
         payload = {"session":self.session_key, "method":"get"}
-        payload_str = self.rconvert(payload, uri)
+        if data is not None:
+            payload_str = self.rconvert(payload, uri, data)
+        else:
+            payload_str = self.rconvert(payload, uri)
         req = self.s.post(self.url, data=payload_str)
         return req
 
@@ -73,7 +76,10 @@ class FMGApi:
         :return: returns the jsonrpc api response
         '''
         payload = {"session":self.session_key, "method":"exec"}
-        payload_str = self.rconvert(payload, uri, data)
+        if data is not None:
+            payload_str = self.rconvert(payload, uri, data)
+        else:
+            payload_str = self.rconvert(payload, uri)
         req = self.s.post(self.url, data=payload_str)
         return req
 
@@ -84,7 +90,10 @@ class FMGApi:
         :return: returns the jsonrpc api response
         '''
         payload = {"session":self.session_key, "method":"set"}
-        payload_str = self.rconvert(payload, uri, data)
+        if data is not None:
+            payload_str = self.rconvert(payload, uri, data)
+        else:
+            payload_str = self.rconvert(payload, uri)
         req = self.s.post(self.url, data=payload_str)
         return req
 
@@ -95,7 +104,10 @@ class FMGApi:
         :return: returns the jsonrpc api response
         '''
         payload = {"session":self.session_key, "method":"delete"}
-        payload_str = self.rconvert(payload, uri, data)
+        if data is not None:
+            payload_str = self.rconvert(payload, uri, data)
+        else:
+            payload_str = self.rconvert(payload, uri)
         req = self.s.post(self.url, data=payload_str)
         return req
 ####
@@ -142,16 +154,27 @@ class FMGApi:
         return r
 
 ##CLI Scripts
-    def get_cli_scripts(self):
-        pass
+    def get_cli_script(self, adom='root', script_name=None):
+        if script_name is not None:
+            #IF script_name variable is set, grab only the specific script
+            uri = {"url": "/dvmdb/adom/" + adom + "/script/"+script_name}
+        else:
+            #IF script_name variable is not set retrieve all scripts
+            uri = {"url": "/dvmdb/adom/" + adom + "/script"}
+        r = self.rget(uri=uri)
+        return r
     
     def create_cli_script(self, adom='root', cli_script='config firewall address', script_name=None):
+        #create a cli script
         uri = {"url": "/dvmdb/adom/"+adom+"/script"}
         data = {"data":[{"content":cli_script, "name":script_name}]}
         r = self.rset(uri=uri, data=data)
         return r
 
     def execute_cli_script(self, adom='root', package='default', script_name=None):
+        #execute the cli script based off name
+        if script_name is None:
+            raise Exception
         uri = {"url": "/dvmdb/adom/"+adom+"/script/execute"}
         data = {"adom":adom_name, "script":script_name, "package":package}
         r = self.rexec(uri=uri, data=data)
