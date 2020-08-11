@@ -89,6 +89,7 @@ class FMGApi:
         :param data: presented by the calling method, if required
         :return: returns the jsonrpc api response
         '''
+
         payload = {"session":self.session_key, "method":"set"}
         if data is not None:
             payload_str = self.rconvert(payload, uri, data)
@@ -104,6 +105,20 @@ class FMGApi:
         :return: returns the jsonrpc api response
         '''
         payload = {"session":self.session_key, "method":"delete"}
+        if data is not None:
+            payload_str = self.rconvert(payload, uri, data)
+        else:
+            payload_str = self.rconvert(payload, uri)
+        req = self.s.post(self.url, data=payload_str)
+        return req
+
+    def radd(self, uri=None, data=None):
+        '''
+        :param uri: presented by the calling method
+        :param data: presented by the calling method, if required
+        :return: returns the jsonrpc api response
+        '''
+        payload = {"session":self.session_key, "method":"add"}
         if data is not None:
             payload_str = self.rconvert(payload, uri, data)
         else:
@@ -174,13 +189,39 @@ class FMGApi:
     def execute_cli_script(self, adom='root', package='default', script_name=None):
         #execute the cli script based off name
         if script_name is None:
-            raise Exception
+            raise Exception('Provide script_name variable')
         uri = {"url": "/dvmdb/adom/"+adom+"/script/execute"}
         data = {"adom":adom_name, "script":script_name, "package":package}
         r = self.rexec(uri=uri, data=data)
         return r
 
     def del_cli_script(self, adom='root', script_name=None):
+        if script_name is None:
+            raise Exception('Provide script_name variable')
+        uri = {"url": "/dvmdb/adom/" + adom + "/script/delete"}
+        r = self.rdel(uri=uri)
+        return r
+
+    def set_custom_protocol_options(self):
         pass
 
+    def get_fw_address(self, adom='root', name=None):
+        if name is None:
+            uri = {"url": "/pm/config/adom/" + adom + "/obj/firewall/address"}
+            r = self.rget(uri=uri)
+            return r
+        else:
+            uri = {"url":"/pm/config/adom/"+ adom + "/obj/firewall/address/"+name}
+            r = self.rget(uri=uri, data=data)
+            return r
 
+    def set_fw_address(self, adom='root', type='ipmask', name=None, subnet=None):
+        uri = {"url":"/pm/config/adom/"+adom+"/obj/firewall/address"}
+        data = {"data": {"name":name, "type":type, "subnet":subnet}}
+        r = self.rset(uri=uri, data=data)
+        return r
+        
+    def del_fw_address(self):
+        uri = {"url":"/pm/config/adom/"+adom+"/obj/firewall/address"}
+        r = self.rdel(uri=uri)
+        return r
