@@ -55,6 +55,12 @@ class FMGApi:
         print(payload_str)
         return payload_str
 
+    def riterator(self, **kwargs):
+        data = {"data": {}}
+        for key, value in kwargs.items():
+            data['data'][key] = value
+        return data
+    
     def rget(self, uri=None, data=None):
         '''
         :param uri: presented by the calling method
@@ -202,9 +208,8 @@ class FMGApi:
         r = self.rdel(uri=uri)
         return r
 
-    def set_custom_protocol_options(self):
-        pass
 
+##Firewall Objects
     def get_fw_address(self, adom='root', name=None):
         if name is None:
             uri = {"url": "/pm/config/adom/" + adom + "/obj/firewall/address"}
@@ -225,3 +230,57 @@ class FMGApi:
         uri = {"url":"/pm/config/adom/"+adom+"/obj/firewall/address"}
         r = self.rdel(uri=uri)
         return r
+
+##Firewall Address Object Groups
+    def get_fw_addrgrp(self):
+        pass
+    def set_fw_addrgrp(self):
+        pass
+    def del_fw_addrgrp(self):
+        pass
+
+#Service Objects
+    def get_srv_object(self):
+        pass
+    def set_srv_object(self):
+        pass
+    def del_srv_object(self):
+        pass
+
+#Firewall Policies PKG
+    def get_fw_pkg(self, adom='root', pkg=None):
+        if pkg is None:
+            uri = {"url":"/pm/pkg/adom/"+adom}
+            r = self.rget(uri=uri)
+            return r
+        else:
+            uri = {"url":"/pm/pkg/adom/"+adom+"/"+pkg}
+            r = self.rget(uri=uri)
+            return r
+
+    def set_fw_pkg(self, adom='root'):
+        pass
+    
+    def del_fw_pkg(self, adom='root'):
+        pass
+#Firewall Policies
+    def get_fw_policy(self, adom='root', pkg=None):
+        uri = {"url":"/pm/config/adom/"+adom+"/pkg/"+pkg+"/firewall/policy"}
+        r = self.rget(uri=uri)
+        return r
+
+    def add_fw_policy(self):
+        pass
+
+    def set_fw_policy(self, adom='root', pkg=None, policyid=None, **kwargs):
+        uri = {"url": "/pm/config/adom/" + adom + "/pkg/" + pkg + "/firewall/policy/"+policyid}
+        data = self.riterator(**kwargs)
+        r = self.rset(uri=uri, data=data)
+        return r
+        
+    def del_fw_policy(self, adom='root', pkg=None):
+        pass
+
+##SEC PROFILES
+    def set_custom_protocol_options(self):
+        pass
