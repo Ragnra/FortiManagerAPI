@@ -22,12 +22,15 @@ class FMGApi:
 
         if self.r.status_code == 200:
             if login_response_json["session"]:
-                self.session_key = login_response_json["session"]
-            elif not x["session"]:
-                print('no session key received, ensure user as rpc-read-write permissions and login creds are correct')
-                exit(2)
+                try:
+                    self.session_key = login_response_json["session"]
+                except:
+                    print('no session key received, ensure user as rpc-read-write permissions and login creds are correct')
+                    raise AccountError
+                    exit(2)
         else:
             print('check L3 connectivity and https socket connectivity')
+            raise SocketError
             exit(2)
 
 ####
@@ -43,13 +46,13 @@ class FMGApi:
         merged_dict = {}
         for d in dict_array:
             merged_dict.update(d)
-        print(merged_dict)
+ #       print(merged_dict)
 
         params = {"params":[]}
         params['params'].append(merged_dict)
         payload.update(params)
         payload_str = json.dumps(payload)
-        print(payload_str)
+  #      print(payload_str)
         return payload_str
 
     def rget(self, uri=None, data=None):
@@ -98,6 +101,7 @@ class FMGApi:
 ####
     ###Code block for methods that are directly called
 
+##Device Info
     def get_fgt_info(self):
         uri = {"url":"/dvmdb/device"}
         r = self.rget(uri=uri)
@@ -109,6 +113,8 @@ class FMGApi:
         r = self.rget(uri=uri, data=data)
         return r
 
+
+##Device Adding
     def discover_fgt_device(self, fgtip=None, fgtuser=None, fgtpasswd=None):
         #i use this to discover devices to populate variables to iterate over an array with the next add_fgt_device method
         uri = {"url":"/dvm/cmd/discover/device"}
@@ -123,6 +129,7 @@ class FMGApi:
         r = self.rexec(self, uri=uri, data=data)
         return r
 
+##ADOMS
     def create_adom(self, adom='root', adom_desc='description'):
         uri = {"url":"/dvmdb/adom"}
         data = {"data":{"name":adom, "desc": adom_desc}}
@@ -134,6 +141,10 @@ class FMGApi:
         r = self.rdel(uri=uri)
         return r
 
+##CLI Scripts
+    def get_cli_scripts(self):
+        pass
+    
     def create_cli_script(self, adom='root', cli_script='config firewall address', script_name=None):
         uri = {"url": "/dvmdb/adom/"+adom+"/script"}
         data = {"data":[{"content":cli_script, "name":script_name}]}
